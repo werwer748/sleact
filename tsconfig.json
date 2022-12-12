@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true, // import * as React from 'react'; -> import React from 'react'
+    "sourceMap": true, // true일 경우 에러난 위치 찾아가기 편함
+    "lib": ["ES2020", "DOM"], // 라이브러리 프론트 개발의 경우 지금 항목 두개를 켜놓으면 됨
+    "jsx": "react", // react개발이기 때문에 지정
+    "module": "esnext", // 최신 모듈을 쓰겠다(import export ...)
+    "moduleResolution": "Node", // 다만 모든게 노드가 해석 가능하게 끔
+    "target": "es5", // 작성은 es2020이지만 es5로 변환 한다.
+    "strict": true, // true인 경우 타입체크 엄격하게
+    "resolveJsonModule": true, //json파일 임포트 허락
+    "baseUrl": ".",
+    "paths": {
+      // import A from ../../../../hello.js 라고 잡히는 경로를 절대경로 처럼 잡아준다.
+      "@hooks/*": ["hooks/*"],
+      "@components/*": ["components/*"],
+      "@layouts/*": ["layouts/*"],
+      "@pages/*": ["pages/*"],
+      "@utils/*": ["utils/*"],
+      "@typings/*": ["typings/*"]
+    }
+  },
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs",
+      "moduleResolution": "Node",
+      "target": "es5",
+      "esModuleInterop": true
+    }
+  }
+}
