@@ -47,16 +47,10 @@ const Workspace = () => {
   const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
 
   const { workspace } = useParams();
-  const {
-    data: userData,
-    error,
-    mutate,
-  } = useSWR<IUser | false | undefined>('http://localhost:3095/api/users', fetcher);
+  const { data: userData, error, mutate } = useSWR<IUser | false | undefined>('/api/users', fetcher);
   //{ data: userData <- 구조분해할당시 변수 이름 바꾸는 문법을 제공한다.}
-  const { data: channelData } = useSWR<IChannel[]>(
-    userData ? `http://localhost:3095/api/workspaces/${workspace}/channels` : null,
-    fetcher,
-  );
+  const { data: channelData } = useSWR<IChannel[]>(userData ? `/api/workspaces/${workspace}/channels` : null, fetcher);
+  const { data: memberData } = useSWR<IUser[]>(userData ? `/api/workspaces/${workspace}/members` : null, fetcher);
 
   console.log('workspace에서확인', channelData);
 
@@ -65,7 +59,7 @@ const Workspace = () => {
 
   const onLogout = useCallback(() => {
     axios
-      .post('http://localhost:3095/api/users/logout', null, {
+      .post('/api/users/logout', null, {
         withCredentials: true,
       })
       .then(() => {
@@ -101,7 +95,7 @@ const Workspace = () => {
       // });
       axios
         .post(
-          'http://localhost:3095/api/workspaces',
+          '/api/workspaces',
           {
             workspace: newWorkspace.trim(),
             url: newUrl.trim(),
@@ -172,7 +166,6 @@ const Workspace = () => {
             userData.Workspaces?.map((item: IWorkspace) => {
               return (
                 <Link key={item.id} to={`/workspace/${123}/channel/일반`}>
-                  {/* <WorkspaceButton>{item.name.slice(0, 1).toUpperCase()}</WorkspaceButton> */}
                   <WorkspaceButton>{item.name.slice(0, 1).toUpperCase()}</WorkspaceButton>
                 </Link>
               );
@@ -185,13 +178,13 @@ const Workspace = () => {
             <Menu show={showWorkspaceModal} onCloseModal={toggleWorkspaceModal} style={{ top: 95, left: 80 }}>
               <WorkspaceModal>
                 <h2>Sleact</h2>
+                <button onClick={onClickInviteWorkspace}>워크스페이스에 사용자 초대</button>
                 <button onClick={onClickAddChannel}>채널 만들기</button>
                 <button onClick={onLogout}>로그아웃</button>
               </WorkspaceModal>
             </Menu>
-            {channelData?.map((item: IChannel) => (
-              <div key={item.id}>{item.name}</div>
-            ))}
+            <ChannelList userData={userData} />
+            <DMList userData={userData} />
           </MenuScroll>
         </Channels>
         {/* 계층적 라우트(중첨라우트, 네스티드 라우트) */}

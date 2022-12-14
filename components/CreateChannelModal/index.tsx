@@ -18,14 +18,10 @@ interface IProps {
 const CreateChannelModal = ({ show, onCloseModal, setShowCreateChannelModal }: IProps) => {
   const [newChannel, onChangeNewChannel, setNewChannel] = useInput('');
   const { workspace, channel } = useParams(); // 주소창에서 정보가져오는 hook;
-  const {
-    data: userData,
-    error,
-    mutate,
-  } = useSWR<IUser | false | undefined>('http://localhost:3095/api/users', fetcher);
+  const { data: userData, error, mutate } = useSWR<IUser | false | undefined>('/api/users', fetcher);
   const { data: channelData, mutate: mutateChannel } = useSWR<IChannel[]>(
     // const { data: channelData, mutate: mutateChannel } = useSWR<any>(
-    userData ? `http://localhost:3095/api/workspaces/${workspace}/channels` : null,
+    userData ? `/api/workspaces/${workspace}/channels` : null,
     fetcher,
   );
 
@@ -35,7 +31,7 @@ const CreateChannelModal = ({ show, onCloseModal, setShowCreateChannelModal }: I
       console.log(workspace);
       axios
         .post(
-          `http://localhost:3095/api/workspaces/${workspace}/channels`,
+          `/api/workspaces/${workspace}/channels`,
           {
             name: newChannel,
           },

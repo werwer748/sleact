@@ -85,12 +85,13 @@ const config: Configuration = {
     port: 3090,
     devMiddleware: { publicPath: '/dist/' },
     static: { directory: path.resolve(__dirname) },
-    // proxy: { //CORS해결을 위해 사용함 CORS는 브라우져에서 발생함
-    //   '/api/': {
-    //     target: 'http://localhost:3095',
-    //     changeOrigin: true,
-    //   },
-    // },
+    proxy: {
+      //CORS해결을 위해 사용함 CORS는 브라우져에서 발생함
+      '/api/': {
+        target: 'http://localhost:3095',
+        changeOrigin: true,
+      },
+    },
   },
 };
 

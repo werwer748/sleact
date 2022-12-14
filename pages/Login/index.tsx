@@ -9,7 +9,7 @@ import fetcher from '@utils/fetcher';
 import { Navigate } from 'react-router-dom';
 
 const LogIn = () => {
-  const { data, error, mutate } = useSWR('http://localhost:3095/api/users', fetcher, {
+  const { data, error, mutate } = useSWR('/api/users', fetcher, {
     //? fetcher자리를 어떻게 써주느냐가 중요함
     dedupingInterval: 100000, // 캐시의 유지기간 이 시간동안 중복요청을 방지함
   });
@@ -23,7 +23,7 @@ const LogIn = () => {
       setLogInError(false);
       axios
         .post(
-          'http://localhost:3095/api/users/login',
+          '/api/users/login',
           {
             email,
             password,

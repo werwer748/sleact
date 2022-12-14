@@ -19,7 +19,7 @@ const InviteWorkspaceModal = ({ show, onCloseModal, setShowInviteWorkspaceModal 
   const { workspace } = useParams();
   const [newMember, onChangeNewMember, setNewMember] = useInput('');
   const { data: userData } = useSWR<IUser>('/api/users', fetcher);
-  const { mutate: mutateMember } = useSWR<IChannel[]>(
+  const { mutate: mutateMembers } = useSWR<IChannel[]>(
     userData ? `/api/workspaces/${workspace}/members` : null,
     fetcher,
   );
@@ -34,7 +34,7 @@ const InviteWorkspaceModal = ({ show, onCloseModal, setShowInviteWorkspaceModal 
           email: newMember,
         })
         .then((response) => {
-          mutateMember();
+          mutateMembers();
           setShowInviteWorkspaceModal(false);
           setNewMember('');
         })

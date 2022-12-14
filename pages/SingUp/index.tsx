@@ -8,7 +8,7 @@ import useSWR from 'swr';
 import fetcher from '@utils/fetcher';
 
 const SignUp = () => {
-  const { data, error, mutate } = useSWR('http://localhost:3095/api/users', fetcher);
+  const { data, error, mutate } = useSWR('/api/users', fetcher);
 
   const [email, onChangeEmail] = useInput('');
   const [nickname, onChangeNickname] = useInput('');
@@ -42,7 +42,7 @@ const SignUp = () => {
         setSignUpError(''); // 비동기 요청 사이에 setState의 경우 초기화를 한번 해주면 좋다.
         setSignUpSuccess(false);
         axios
-          .post('http://localhost:3095/api/users', {
+          .post('/api/users', {
             email,
             nickname,
             password,
