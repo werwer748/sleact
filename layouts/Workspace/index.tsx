@@ -32,6 +32,9 @@ import CreateChannelModal from '@components/CreateChannelModal';
 import { useParams } from 'react-router';
 import InviteWorkspaceModal from '@components/InviteWorkspaceModal';
 import InviteChannelModal from '@components/InviteChannelModal';
+import DMList from '@components/DMList';
+import ChannelList from '@components/ChannelList';
+import useSocket from '@hooks/useSocket';
 
 const Channel = loadable(() => import('@pages/Channel'));
 const DirectMessage = loadable(() => import('@pages/DirectMessage'));
@@ -52,7 +55,20 @@ const Workspace = () => {
   const { data: channelData } = useSWR<IChannel[]>(userData ? `/api/workspaces/${workspace}/channels` : null, fetcher);
   const { data: memberData } = useSWR<IUser[]>(userData ? `/api/workspaces/${workspace}/members` : null, fetcher);
 
-  console.log('workspace에서확인', channelData);
+  const [socket, disconnect] = useSocket(workspace);
+
+  useEffect(() => {
+    if (channelData && userData && socket) {
+      console.log('소켓확인', socket);
+      socket.emit('login', { id: userData.id, channels: channelData.map((v) => v.id) });
+    }
+  }, [socket, channelData, userData]);
+
+  useEffect(() => {
+    return () => {
+      disconnect();
+    };
+  }, [workspace, disconnect]);
 
   //! const { data, error, mutate } = useSWR('http://localhost:3095/api/users#123', fetcher);
   //* 같은 주소에 요청을해서 다르게 데이터를 저장하고 싶을 때 해당 url처럼 쿼리스트링같은 것을 붙여준다.
@@ -65,7 +81,7 @@ const Workspace = () => {
       .then(() => {
         mutate(false, false);
       });
-  }, []);
+  }, [mutate]);
 
   const onClickUserProfile = useCallback(() => {
     setShowUserMenu((prev) => !prev);
@@ -133,7 +149,9 @@ const Workspace = () => {
     setShowCreateChannelModal(true);
   }, []);
 
-  const onClickInviteWorkspace = useCallback(() => {}, []);
+  const onClickInviteWorkspace = useCallback(() => {
+    setShowInviteWorkspaceModal(true);
+  }, []);
 
   if (!userData) {
     return <Navigate to="/login" />;
@@ -183,8 +201,8 @@ const Workspace = () => {
                 <button onClick={onLogout}>로그아웃</button>
               </WorkspaceModal>
             </Menu>
-            <ChannelList userData={userData} />
-            <DMList userData={userData} />
+            <ChannelList />
+            <DMList />
           </MenuScroll>
         </Channels>
         {/* 계층적 라우트(중첨라우트, 네스티드 라우트) */}
