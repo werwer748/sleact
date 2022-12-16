@@ -77,6 +77,7 @@ const ChatBox = ({ chat, onSubmitForm, onChangeChat, placeholder }: IProps) => {
           onKeyDown={onKeydownChat}
           placeholder={placeholder}
           inputRef={textareaRef}
+          allowSuggestionsAboveCursor
         >
           <Mention
             appendSpaceOnAdd

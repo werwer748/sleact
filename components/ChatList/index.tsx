@@ -1,27 +1,55 @@
-import React, { useCallback, useRef } from 'react';
+import React, { forwardRef, MutableRefObject, useCallback, useRef } from 'react';
 import { IDM } from '@typings/db';
-import { ChatZone, Section } from './styles';
+import { ChatZone, Section, StickyHeader } from './styles';
 import { Scrollbars } from 'react-custom-scrollbars';
 import Chat from '@components/Chat';
 
 interface IProps {
-  chatData?: IDM[];
+  chatSections: { [key: string]: IDM[] };
+  setSize: (f: (size: number) => number) => Promise<IDM[][] | undefined>;
+  isEmpty: boolean;
+  isReachingEnd: boolean;
 }
 
-const ChatList = ({ chatData }: IProps) => {
-  const scrollbarRef = useRef(null);
-
-  const onScroll = useCallback(() => {}, []);
+const ChatList = forwardRef<Scrollbars, IProps>(({ chatSections, setSize, isEmpty, isReachingEnd }, scrollRef) => {
+  const onScroll = useCallback((values: any) => {
+    if (values.scrollTop === 0 && !isReachingEnd) {
+      const current = (scrollRef as MutableRefObject<Scrollbars>)?.current;
+      console.log('맨 위 도착');
+      console.log('스크롤바 current1', current.getScrollHeight());
+      //데이터 추가 로딩
+      setSize((prevSize) => prevSize + 1).then(() => {
+        // 스크롤 위치 유지
+        setTimeout(() => {
+          if (current) {
+            console.log('스크롤바 current2', current.getScrollHeight());
+            console.log('스크롤바 values', values);
+            current.scrollTop(current.getScrollHeight() - values.scrollHeight);
+          }
+        }, 0);
+      });
+    }
+  }, []);
 
   return (
     <ChatZone>
-      <Scrollbars autoHide ref={scrollbarRef} onScrollFrame={onScroll}>
-        {chatData?.map((item) => (
-          <Chat key={item.id} data={item} />
-        ))}
+      <Scrollbars autoHide ref={scrollRef} onScrollFrame={onScroll}>
+        {Object.entries(chatSections).map(([date, chats]) => {
+          // Object.entries <= 객체 반복문 돌릴 때 사용
+          return (
+            <Section className={`section-${date}`} key={date}>
+              <StickyHeader>
+                <button>{date}</button>
+              </StickyHeader>
+              {chats.map((chat) => (
+                <Chat key={chat.id} data={chat} />
+              ))}
+            </Section>
+          );
+        })}
       </Scrollbars>
     </ChatZone>
   );
-};
+});
 
 export default ChatList;

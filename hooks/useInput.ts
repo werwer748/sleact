@@ -6,8 +6,8 @@ type ReturnTypes<T = any> = [T, (e: ChangeEvent<HTMLInputElement>) => void, Disp
 const useInput = <T = any>(initialData: T): ReturnTypes => {
   const [value, setValue] = useState(initialData);
   // const handler = useCallback((e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-  // const handler = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-  const handler = useCallback((e: any) => {
+  const handler = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    // const handler = useCallback((e: any) => {
     setValue(e.target.value as unknown as T);
   }, []);
   return [value, handler, setValue];
