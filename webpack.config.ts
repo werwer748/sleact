@@ -8,7 +8,7 @@ interface Configuration extends WebpackConfiguration {
 }
 
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin'; //typescript 실행과 웹팩이 동시에 돌아갈수 있게 해준다
-// import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -95,14 +95,15 @@ const config: Configuration = {
   },
 };
 
+//* BundleAnalyzerPlugin : 용량 관련 웹팩 설정
 if (isDevelopment && config.plugins) {
   config.plugins.push(new webpack.HotModuleReplacementPlugin());
   config.plugins.push(new ReactRefreshWebpackPlugin());
-  //   config.plugins.push(new BundleAnalyzerPlugin({ analyzerMode: 'server', openAnalyzer: false }));
+  config.plugins.push(new BundleAnalyzerPlugin({ analyzerMode: 'server', openAnalyzer: false })); // 서버를 따로 띄워서 보여줌, 따로 탭이하나 더 뜨고 컴포넌트별 용량을 보여 줌
 }
 if (!isDevelopment && config.plugins) {
   config.plugins.push(new webpack.LoaderOptionsPlugin({ minimize: true }));
-  //   config.plugins.push(new BundleAnalyzerPlugin({ analyzerMode: 'static' }));
+  config.plugins.push(new BundleAnalyzerPlugin({ analyzerMode: 'static' })); // 배포시에 html로 결과물을 출력해줌
 }
 
 export default config;

@@ -60,7 +60,7 @@ const Workspace = () => {
   useEffect(() => {
     if (channelData && userData && socket) {
       console.log('소켓확인', socket);
-      socket.emit('login', { id: userData.id, channels: channelData.map((v) => v.id) });
+      socket.emit('login', { id: userData.id, fluterchannels: channelData.map((v) => v.id) });
     }
   }, [socket, channelData, userData]);
 

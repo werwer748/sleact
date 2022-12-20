@@ -1,9 +1,9 @@
 import { ChangeEvent, Dispatch, SetStateAction, useCallback, useState } from 'react';
 import { OnChangeHandlerFunc } from 'react-mentions';
 
-type ReturnTypes<T = any> = [T, (e: ChangeEvent<HTMLInputElement>) => void, Dispatch<SetStateAction<T>>];
+type ReturnTypes<T> = [T, (e: ChangeEvent<HTMLInputElement>) => void, Dispatch<SetStateAction<T>>];
 
-const useInput = <T = any>(initialData: T): ReturnTypes => {
+const useInput = <T>(initialData: T): ReturnTypes<T> => {
   const [value, setValue] = useState(initialData);
   // const handler = useCallback((e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
   const handler = useCallback((e: ChangeEvent<HTMLInputElement>) => {

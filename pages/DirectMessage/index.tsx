@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useRef } from 'react';
-import { Container, Header } from './styles';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Container, DragOver, Header } from './styles';
 import gravatar from 'gravatar';
 import useSWR from 'swr';
 import useSWRInfinite from 'swr/infinite';
@@ -36,6 +36,7 @@ const DirectMessage = () => {
 
   const [chat, onChangeChat, setChat] = useInput('');
   const scrollbarRef = useRef<Scrollbars>(null);
+  const [dragOver, setDragOver] = useState(false);
 
   const onSubmitForm = useCallback(
     (e: React.FormEvent) => {
@@ -112,6 +113,37 @@ const DirectMessage = () => {
     }
   }, [chatData]);
 
+  const onDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    console.log(e);
+    const formData = new FormData();
+
+    if (e.dataTransfer.items) {
+      for (let i = 0; i < e.dataTransfer.items.length; i++) {
+        if (e.dataTransfer.items[i].kind === 'file') {
+          const file = e.dataTransfer.items[i].getAsFile();
+          console.log('... file[' + i + '].name = ' + file?.name);
+          file && formData.append('image', file);
+        } else {
+          for (let i = 0; i < e.dataTransfer.files.length; i++) {
+            console.log('... file[' + i + '].name = ' + e.dataTransfer.files[i].name);
+            formData.append('image', e.dataTransfer.files[i]);
+          }
+        }
+      }
+    }
+    axios.post(`/api/workspaces/${workspace}/dms/${id}/images`, formData).then(() => {
+      setDragOver(false);
+      mutateChat();
+    });
+  }, []);
+
+  const onDragOver = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    console.log(e);
+    setDragOver(true);
+  }, []);
+
   if (!userData || !myData) {
     return null;
   }
@@ -120,7 +152,7 @@ const DirectMessage = () => {
   //! reverse로 원본 배열이 바뀌지 않는다. flat이 새로운 배열을 반환해주고 그걸 reverse 한거니까!
 
   return (
-    <Container>
+    <Container onDrop={onDrop} onDragOver={onDragOver}>
       <Header>
         <img src={gravatar.url(userData.email, { s: '24px', d: 'retro' })} alt={userData.nickname} />
       </Header>
@@ -132,6 +164,7 @@ const DirectMessage = () => {
         isReachingEnd={isReachingEnd}
       />
       <ChatBox chat={chat} onChangeChat={onChangeChat} onSubmitForm={onSubmitForm} />
+      {dragOver && <DragOver>업로드!</DragOver>}
     </Container>
   );
 };

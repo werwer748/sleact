@@ -1,21 +1,25 @@
 import React, { memo, useMemo } from 'react';
 import { ChatWrapper } from './styles';
 import gravatar from 'gravatar';
-import { IDM } from '@typings/db';
+import { IChat, IDM } from '@typings/db';
 import dayjs from 'dayjs';
 import regexifyString from 'regexify-string';
 import { Link } from 'react-router-dom';
 import { useParams } from 'react-router';
 
 interface IProps {
-  data: IDM;
+  data: IDM | IChat;
 }
 
 //* a?.b => optinal chaining
 //* a??.b => nullish coalescing
 
+const BACK_URL = process.env.NODE_ENV === 'development' ? 'http://localhost:3095' : 'https://sleact.nodebird.com';
+
 const Chat = ({ data }: IProps) => {
-  const user = data.Sender;
+  //? 이렇게 작성하면 타입스크립트가 dm인지 channel인지 판단한다.(javascript 문법)
+  //? 두가지 이상의 타입이 겹쳐져있을때 타입을 구분해주는거 -> 타입가드
+  const user = 'Sender' in data ? data.Sender : data.User;
   const { workspace } = useParams();
 
   /*
@@ -29,23 +33,27 @@ const Chat = ({ data }: IProps) => {
   */
   const result = useMemo(
     () =>
-      regexifyString({
-        //? hooks안에서 개별값을 캐싱하고 싶다면 useMemo
-        input: data.content,
-        pattern: /@\[(.+?)]\((\d+?)\)|\n]/g,
-        decorator(match, index, result) {
-          const arr = match.match(/@\[(.+?)]\((\d+?)\)/)!;
-          if (arr) {
-            return (
-              <Link key={match + index} to={`/workspace/${workspace}/dm/${arr[2]}`}>
-                @{arr[1]}
-              </Link>
-            );
-          }
-          return <br key={index} />;
-        },
-      }),
-    [data.content],
+      data.content.startsWith('uploads\\') || data.content.startsWith('uploads/') ? (
+        <img src={`${BACK_URL}/${data.content}`} style={{ maxHeight: 200 }} />
+      ) : (
+        regexifyString({
+          //? hooks안에서 개별값을 캐싱하고 싶다면 useMemo
+          input: data.content,
+          pattern: /@\[(.+?)]\((\d+?)\)|\n]/g,
+          decorator(match, index, result) {
+            const arr = match.match(/@\[(.+?)]\((\d+?)\)/)!;
+            if (arr) {
+              return (
+                <Link key={match + index} to={`/workspace/${workspace}/dm/${arr[2]}`}>
+                  @{arr[1]}
+                </Link>
+              );
+            }
+            return <br key={index} />;
+          },
+        })
+      ),
+    [data.content, workspace],
   ); //? 디펜던시는 캐싱을 푸는 (캐싱을 갱신하는 조건)을 써줘야 함.
 
   return (
